@@ -1,1 +1,61 @@
+const express = require("express");
+const { MongoClient } = require('mongodb');
+const cors = require('cors');
 
+require('dotenv').config();
+
+// App Create
+const app = express();
+const port = process.env.PORT || 5000;
+
+// Middle Wire
+app.use(cors());
+app.use(express.json());
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@randomdb.rfcve.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+
+const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+const run = async() => {
+
+    try {
+        await client.connect();
+        const database = client.db('ghurbo-tourism');
+        const toursCollection = database.collection('tours');
+
+        // Get API
+        app.get('/tours', async (req, res) => {
+            const cursor = toursCollection.find({});
+            const tours = await cursor.toArray();
+            res.send(tours);
+        });
+
+
+        // Post API
+        app.post('/tours', async (req, res) => {
+            const tour = req.body;
+            console.log('hit the post api', tour);
+
+            const result = await servicesCollection.insertOne(tour);
+            console.log(result);
+            res.json(result)
+        });
+    }
+    catch {
+
+    }
+    finally {
+        // await client.close();
+    }
+}
+
+
+run().catch(console.dir);
+
+app.get('/', (req, res) => {
+    res.send('Running Ghurbo Tourism Server Successfully.....');
+});
+
+app.listen(port, () => {
+    console.log('Running Ghurbo Tourism Server Successfully on port: ', port);
+})
