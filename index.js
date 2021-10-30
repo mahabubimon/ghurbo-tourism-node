@@ -12,6 +12,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@randomdb.rfcve.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -22,6 +23,7 @@ const run = async() => {
         await client.connect();
         const database = client.db('ghurbo-tourism');
         const toursCollection = database.collection('tours');
+        const ordersCollection = database.collection('orders');
 
         // Get API
         app.get('/tours', async (req, res) => {
@@ -36,10 +38,17 @@ const run = async() => {
             const tour = req.body;
             console.log('hit the post api', tour);
 
-            const result = await servicesCollection.insertOne(tour);
+            const result = await toursCollection.insertOne(tour);
             console.log(result);
             res.json(result)
         });
+
+        // Add Orders API
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.json(result);
+        })
     }
     catch {
 
