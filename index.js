@@ -32,7 +32,6 @@ const run = async () => {
       console.log("hit the post api", tour);
 
       const result = await toursCollection.insertOne(tour);
-      console.log(result);
       res.json(result);
     });
 
@@ -49,6 +48,7 @@ const run = async () => {
       const result = await ordersCollection.insertOne(order);
       res.json(result);
     });
+
     // Get API Orders
     app.get("/orders", async (req, res) => {
       const cursor = ordersCollection.find({});
@@ -59,9 +59,11 @@ const run = async () => {
     // DELETE API
     app.delete("/orders/:id", async (req, res) => {
       const id = req.params.id;
+      console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await ordersCollection.deleteOne(query);
       res.json(result);
+      console.log(result);
     });
   } catch {
   } finally {
