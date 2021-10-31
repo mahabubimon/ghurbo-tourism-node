@@ -26,14 +26,7 @@ const run = async () => {
     const toursCollection = database.collection("tours");
     const ordersCollection = database.collection("orders");
 
-    // Get API
-    app.get("/tours", async (req, res) => {
-      const cursor = toursCollection.find({});
-      const tours = await cursor.toArray();
-      res.send(tours);
-    });
-
-    // Post API
+    // Post API Tours
     app.post("/tours", async (req, res) => {
       const tour = req.body;
       console.log("hit the post api", tour);
@@ -43,11 +36,24 @@ const run = async () => {
       res.json(result);
     });
 
+    // Get API Tours
+    app.get("/tours", async (req, res) => {
+      const cursor = toursCollection.find({});
+      const tours = await cursor.toArray();
+      res.send(tours);
+    });
+
     // Add Orders API
     app.post("/orders", async (req, res) => {
       const order = req.body;
       const result = await ordersCollection.insertOne(order);
       res.json(result);
+    });
+    // Get API Orders
+    app.get("/orders", async (req, res) => {
+      const cursor = ordersCollection.find({});
+      const orders = await cursor.toArray();
+      res.send(orders);
     });
   } catch {
   } finally {
