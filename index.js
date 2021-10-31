@@ -1,6 +1,7 @@
 const express = require("express");
 const { MongoClient } = require("mongodb");
 const cors = require("cors");
+const ObjectId = require('mongodb').ObjectId;
 
 require("dotenv").config();
 
@@ -62,6 +63,11 @@ const run = async () => {
       console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await ordersCollection.deleteOne(query);
+      if (result.deletedCount === 1) {
+        console.log("Successfully deleted one document.");
+      } else {
+        console.log("No documents matched the query. Deleted 0 documents.");
+      }
       res.json(result);
       console.log(result);
     });
