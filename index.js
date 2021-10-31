@@ -1,8 +1,8 @@
 const express = require("express");
-const { MongoClient } = require('mongodb');
-const cors = require('cors');
+const { MongoClient } = require("mongodb");
+const cors = require("cors");
 
-require('dotenv').config();
+require("dotenv").config();
 
 // App Create
 const app = express();
@@ -12,59 +12,55 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@randomdb.rfcve.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
-const run = async() => {
+const run = async () => {
+  try {
+    await client.connect();
+    const database = client.db("ghurbo-tourism");
+    const toursCollection = database.collection("tours");
+    const ordersCollection = database.collection("orders");
 
-    try {
-        await client.connect();
-        const database = client.db('ghurbo-tourism');
-        const toursCollection = database.collection('tours');
-        const ordersCollection = database.collection('orders');
+    // Get API
+    app.get("/tours", async (req, res) => {
+      const cursor = toursCollection.find({});
+      const tours = await cursor.toArray();
+      res.send(tours);
+    });
 
-        // Get API
-        app.get('/tours', async (req, res) => {
-            const cursor = toursCollection.find({});
-            const tours = await cursor.toArray();
-            res.send(tours);
-        });
+    // Post API
+    app.post("/tours", async (req, res) => {
+      const tour = req.body;
+      console.log("hit the post api", tour);
 
+      const result = await toursCollection.insertOne(tour);
+      console.log(result);
+      res.json(result);
+    });
 
-        // Post API
-        app.post('/tours', async (req, res) => {
-            const tour = req.body;
-            console.log('hit the post api', tour);
-
-            const result = await toursCollection.insertOne(tour);
-            console.log(result);
-            res.json(result)
-        });
-
-        // Add Orders API
-        app.post('/orders', async (req, res) => {
-            const order = req.body;
-            const result = await orderCollection.insertOne(order);
-            res.json(result);
-        })
-    }
-    catch {
-
-    }
-    finally {
-        // await client.close();
-    }
-}
-
+    // Add Orders API
+    app.post("/orders", async (req, res) => {
+      const order = req.body;
+      const result = await ordersCollection.insertOne(order);
+      res.json(result);
+    });
+  } catch {
+  } finally {
+    // await client.close();
+  }
+};
 
 run().catch(console.dir);
 
-app.get('/', (req, res) => {
-    res.send('Running Ghurbo Tourism Server Successfully.....');
+app.get("/", (req, res) => {
+  res.send("Running Ghurbo Tourism Server Successfully.....");
 });
 
 app.listen(port, () => {
-    console.log('Running Ghurbo Tourism Server Successfully on port: ', port);
-})
+  console.log("Running Ghurbo Tourism Server Successfully on port: ", port);
+});
